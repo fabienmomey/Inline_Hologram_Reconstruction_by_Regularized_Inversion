@@ -1,107 +1,70 @@
 # Inline Hologram Reconstruction by Regularized Inversion (IHRRI) toolbox
 A matlab code for "inverse problems" based image reconstruction of digital in-line holograms. 
 
-This toolbox implements Inverse Problems based algorithms dedicated to
-image reconstruction in digital in-line holographic microscopy (DHM).
-Theoretical aspects on DHM and inverse approaches are developed in a
-tutorial published in JOSA A [1], and this code constitutes a 
-demonstrator of the algorithms presented in this publication.
+This toolbox implements Inverse Problems based algorithms dedicated to image reconstruction in digital in-line holographic microscopy (DHM). Theoretical aspects on DHM and inverse approaches are developed in a tutorial published in JOSA A [1], and this code constitutes a  demonstrator of the algorithms presented in this publication.
 
-Here is the main reconstruction script that can be executed as is, and
-can perform a reconstruction from in-line hologram data whose parameters
-(data and results saving paths, calibration, algorithm settings) have to
-be set in the file "parameters.m" (refer to it for more details).
+Here is the main reconstruction script that can be executed as is, and can perform a reconstruction from in-line hologram data whose parameters (data and results saving paths, calibration, algorithm settings) have to be set in the file "parameters.m" (refer to it for more details).
 
 Summary
 -------
 
-The code is able to perform 2 kind of "Inverse problems" algorithms
-aiming at reconstructing an image X from an intensity in-line hologram 
-image Y. In this code, X is 2-component image ([width,height,2]), each
-one corresponding respectively to the real and imaginary part of the
-complex deviation from the unit transmittance plane :
+The code is able to perform 2 kind of "Inverse problems" algorithms aiming at reconstructing an image X from an intensity in-line hologram  image Y. In this code, X is 2-component image ([width,height,2]), each one corresponding respectively to the real and imaginary part of the complex deviation from the unit transmittance plane :
 
                   T = 1 + X(:,:,1) + i X(:,:,2)
 
 The 2 implemented reconstruction algorithm are:
 
-  - The Fienup's Error-Reduction algorithm [2], which stands for a
-  gradient descent algorithm aiming at solving the following
-  problem:
+- The Fienup's Error-Reduction algorithm [2], which stands for a gradient descent algorithm aiming at solving the following problem:
   
   	X	= 	ARG MIN   || C*M(X) - Y ||_2^2		s.t.    X in Omega
 
 			x
 
-  where 
+where 
 
-      - M(X) = |1 + H.X| is the square root intensity hologram formation 
-      model of X using a convolutive propagation operator H (the Fresnel 
-      kernel is available in this toolbox).
+- M(X) = |1 + H.X| is the square root intensity hologram formation model of X using a convolutive propagation operator H (the Fresnel kernel is available in this toolbox).
 
-      - Omega stands for the validity domain of X that is enforced as a
-      "projection on constraints" operator in the algorithm. The domain
-      Omega takes the form of bound constraints applied on the real and
-      imaginary parts of X:
+- Omega stands for the validity domain of X that is enforced as a "projection on constraints" operator in the algorithm. The domain Omega takes the form of bound constraints applied on the real and imaginary parts of X:
+   
+* RCONST = [XRMIN,XRMAX]
 
-          * RCONST = [XRMIN,XRMAX]
+* ICONST = [XIMIN,XIMAX]
 
-          * ICONST = [XIMIN,XIMAX]
+- C is a scaling factor that accounts for the intensity of the incident wave |a_0|^2 as well as the detector gain and quantum efficiency [1].
 
-      - C is a scaling factor that accounts for the intensity of the 
-      incident wave |a_0|^2 as well as the detector gain and quantum 
-      efficiency [1].
-
-  - The FISTA algorithm [3], which is a proximal gradient descent
-  algorithm aiming at solving the following sparsity problem:
+- The FISTA algorithm [3], which is a proximal gradient descent algorithm aiming at solving the following sparsity problem:
   
   	X	=	ARG MIN   || C*M(X) - Y ||_W^2 + mu * || X ||_1		s.t.    X in Omega
 
            		x
 
-  where 
+where 
 
-      - M(X) is still the intensity hologram formation model which can 
-      take 2 forms:
+- M(X) is still the intensity hologram formation model which can take 2 forms:
 
-          * Considering purely and weakly dephasing or purely absorbing 
-          objects, we can use a linearized intensity hologram formation
-          model:
+* Considering purely and weakly dephasing or purely absorbing objects, we can use a linearized intensity hologram formation model:
 
           M(X) = 1 + G.X ~ |1 + H.X|^2 
 
-          where X becomes purely real image (size [width,height]) and G
-          is a purely real kernel (see the code's documentation for
-          details) which depends on the convolutive propagation operator 
-          H.
+where X becomes purely real image (size [width,height]) and G is a purely real kernel (see the code's documentation for details) which depends on the convolutive propagation operator H.
 
-          * Considering a unknown object:
+* Considering a unknown object:
 
           M(X) = |1 + H.X|^2 
           
-          that models the "full" intensity hologram image from the
-          "complex" image X.
+that models the "full" intensity hologram image from the "complex" image X.
 
-      - Omega stands for the validity domain of X that is enforced as a
-      "projection on constraints" operator in the algorithm.
+- Omega stands for the validity domain of X that is enforced as a "projection on constraints" operator in the algorithm.
 
-      - C is a scaling factor that accounts for the intensity of the 
-      incident wave |a_0|^2 as well as the detector gain and quantum 
-      efficiency [1].
+- C is a scaling factor that accounts for the intensity of the incident wave |a_0|^2 as well as the detector gain and quantum efficiency [1].
 
-      - W is the inverse noise covariance matrix C^{-1}.
+- W is the inverse noise covariance matrix C^{-1}.
 
-      - || X ||_1 is a regularizer enforcing a sparsity constraint,
-      weighted by a parameter MU, and applied as a soft-thresholding
-      operator in the algorithm.
+- || X ||\_1 is a regularizer enforcing a sparsity constraint, weighted by a parameter MU, and applied as a soft-thresholding operator in the algorithm.
 
-Note that the code is able to perform fied-of-view extension in a
-rigorous way by setting an extension factor in the settings (see
-"parameters.m").
+Note that the code is able to perform fied-of-view extension in a rigorous way by setting an extension factor in the settings (see "parameters.m").
 
-In the future, an edge-preserving regularizer will be implemented which
-can be added to the reconstruction criterion (see [1] for theoretical
-details).
+In the future, an edge-preserving regularizer will be implemented which can be added to the reconstruction criterion (see [1] for theoretical details).
 
 References
 
