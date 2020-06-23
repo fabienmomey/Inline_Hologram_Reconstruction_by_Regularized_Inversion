@@ -16,9 +16,7 @@ The 2 implemented reconstruction algorithm are:
 
 - The Fienup's Error-Reduction algorithm [2], which stands for a gradient descent algorithm aiming at solving the following problem:
   
-  	X	= 	ARG MIN   || C*M(X) - Y ||_2^2		s.t.    X in Omega
-
-			x
+	X = ARG MIN   || C*M(X) - Y ||_2^2     s.t.    X in Omega
 
 where 
 
@@ -33,22 +31,20 @@ where
 - C is a scaling factor that accounts for the intensity of the incident wave |a_0|^2 as well as the detector gain and quantum efficiency [1].
 
 - The FISTA algorithm [3], which is a proximal gradient descent algorithm aiming at solving the following sparsity problem:
-  
-  	X	=	ARG MIN   || C*M(X) - Y ||_W^2 + mu * || X ||_1		s.t.    X in Omega
 
-           		x
+	X = ARG MIN   || C*M(X) - Y ||\_W^2 + mu * || X ||\_1     s.t.    X in Omega
 
 where 
 
 - M(X) is still the intensity hologram formation model which can take 2 forms:
 
-* Considering purely and weakly dephasing or purely absorbing objects, we can use a linearized intensity hologram formation model:
+-- Considering purely and weakly dephasing or purely absorbing objects, we can use a linearized intensity hologram formation model:
 
           M(X) = 1 + G.X ~ |1 + H.X|^2 
 
 where X becomes purely real image (size [width,height]) and G is a purely real kernel (see the code's documentation for details) which depends on the convolutive propagation operator H.
 
-* Considering a unknown object:
+-- Considering a unknown object:
 
           M(X) = |1 + H.X|^2 
           
