@@ -10,13 +10,13 @@ Summary
 
 The code is able to perform 2 kind of "Inverse problems" algorithms aiming at reconstructing an image X from an intensity in-line hologram  image Y. In this code, X is 2-component image ([width,height,2]), each one corresponding respectively to the real and imaginary part of the complex deviation from the unit transmittance plane :
 
-                  T = 1 + X(:,:,1) + i X(:,:,2)
+    T = 1 + X(:,:,1) + i X(:,:,2)
 
 The 2 implemented reconstruction algorithm are:
 
 - The Fienup's Error-Reduction algorithm [2], which stands for a gradient descent algorithm aiming at solving the following problem:
-  
-	X = ARG MIN   || C*M(X) - Y ||_2^2     s.t.    X in Omega
+
+    X = ARG MIN   || C*M(X) - Y ||_2^2     s.t.    X in Omega
 
 where 
 
@@ -24,15 +24,15 @@ where
 
 - Omega stands for the validity domain of X that is enforced as a "projection on constraints" operator in the algorithm. The domain Omega takes the form of bound constraints applied on the real and imaginary parts of X:
    
-* RCONST = [XRMIN,XRMAX]
+-- RCONST = [XRMIN,XRMAX]
 
-* ICONST = [XIMIN,XIMAX]
+-- ICONST = [XIMIN,XIMAX]
 
 - C is a scaling factor that accounts for the intensity of the incident wave |a_0|^2 as well as the detector gain and quantum efficiency [1].
 
 - The FISTA algorithm [3], which is a proximal gradient descent algorithm aiming at solving the following sparsity problem:
 
-	X = ARG MIN   || C*M(X) - Y ||\_W^2 + mu * || X ||\_1     s.t.    X in Omega
+    X = ARG MIN   || C*M(X) - Y ||\_W^2 + mu * || X ||\_1     s.t.    X in Omega
 
 where 
 
@@ -40,13 +40,13 @@ where
 
 -- Considering purely and weakly dephasing or purely absorbing objects, we can use a linearized intensity hologram formation model:
 
-          M(X) = 1 + G.X ~ |1 + H.X|^2 
+    M(X) = 1 + G.X ~ |1 + H.X|^2 
 
 where X becomes purely real image (size [width,height]) and G is a purely real kernel (see the code's documentation for details) which depends on the convolutive propagation operator H.
 
 -- Considering a unknown object:
 
-          M(X) = |1 + H.X|^2 
+    M(X) = |1 + H.X|^2 
           
 that models the "full" intensity hologram image from the "complex" image X.
 
