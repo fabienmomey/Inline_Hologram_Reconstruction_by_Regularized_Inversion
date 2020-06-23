@@ -29,9 +29,9 @@ The 2 implemented reconstruction algorithm are:
   gradient descent algorithm aiming at solving the following
   problem:
   
-  X	= 	ARG MIN   || C*M(X) - Y ||_2^2		s.t.    X in Omega
+  	X	= 	ARG MIN   || C*M(X) - Y ||_2^2		s.t.    X in Omega
 
-		x
+			x
 
   where 
 
@@ -55,9 +55,9 @@ The 2 implemented reconstruction algorithm are:
   - The FISTA algorithm [3], which is a proximal gradient descent
   algorithm aiming at solving the following sparsity problem:
   
-  X	=	ARG MIN   || C*M(X) - Y ||_W^2 + mu * || X ||_1		s.t.    X in Omega
+  	X	=	ARG MIN   || C*M(X) - Y ||_W^2 + mu * || X ||_1		s.t.    X in Omega
 
-           	x
+           		x
 
   where 
 
