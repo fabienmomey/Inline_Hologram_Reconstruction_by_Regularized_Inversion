@@ -75,14 +75,11 @@ References
       IEEE Trans. Image Process. 18, 2419–2434, 2009.
 
 Created: 04/06/2020 (mm/dd/yyyy)
-Author:   Fabien Momey
-          Laboratoire Hubert Curien UMR CNRS 5516, 
-          Université Jean Monnet, 
-          F-42000 Saint-Étienne, 
-          France
-          fabien.momey@univ-st-etienne.fr
+
+Author:   Fabien Momey, Laboratoire Hubert Curien UMR CNRS 5516, Université Jean Monnet, F-42000 Saint-Étienne, France, fabien.momey@univ-st-etienne.fr.
 
 Copyright (c) 2020, Fabien Momey
+
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
