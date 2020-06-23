@@ -24,22 +24,28 @@ complex deviation from the unit transmittance plane :
                   T = 1 + X(:,:,1) + i X(:,:,2)
 
 The 2 implemented reconstruction algorithm are:
+
   - The Fienup's Error-Reduction algorithm [2], which stands for a
   gradient descent algorithm aiming at solving the following
   problem:
   
-  X   = ARG MIN   || C*M(X) - Y ||_2^2        s.t.    X in Omega
-           x
+  X	= 	ARG MIN   || C*M(X) - Y ||_2^2		s.t.    X in Omega
+
+		x
 
   where 
+
       - M(X) = |1 + H.X| is the square root intensity hologram formation 
       model of X using a convolutive propagation operator H (the Fresnel 
       kernel is available in this toolbox).
+
       - Omega stands for the validity domain of X that is enforced as a
       "projection on constraints" operator in the algorithm. The domain
       Omega takes the form of bound constraints applied on the real and
       imaginary parts of X:
+
           * RCONST = [XRMIN,XRMAX]
+
           * ICONST = [XIMIN,XIMAX]
 
       - C is a scaling factor that accounts for the intensity of the 
@@ -49,14 +55,15 @@ The 2 implemented reconstruction algorithm are:
   - The FISTA algorithm [3], which is a proximal gradient descent
   algorithm aiming at solving the following sparsity problem:
   
-  X   = ARG MIN   || C*M(X) - Y ||_W^2 + mu * || X ||_1
-           x
+  X	=	ARG MIN   || C*M(X) - Y ||_W^2 + mu * || X ||_1		s.t.    X in Omega
 
-                                         s.t.    X in Omega
+           	x
 
   where 
+
       - M(X) is still the intensity hologram formation model which can 
       take 2 forms:
+
           * Considering purely and weakly dephasing or purely absorbing 
           objects, we can use a linearized intensity hologram formation
           model:
@@ -77,9 +84,11 @@ The 2 implemented reconstruction algorithm are:
 
       - Omega stands for the validity domain of X that is enforced as a
       "projection on constraints" operator in the algorithm.
+
       - C is a scaling factor that accounts for the intensity of the 
       incident wave |a_0|^2 as well as the detector gain and quantum 
       efficiency [1].
+
       - W is the inverse noise covariance matrix C^{-1}.
 
       - || X ||_1 is a regularizer enforcing a sparsity constraint,
