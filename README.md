@@ -3,7 +3,7 @@ A matlab code for "inverse problems" based image reconstruction of digital in-li
 
 This toolbox implements Inverse Problems based algorithms dedicated to image reconstruction in digital in-line holographic microscopy (DHM). Theoretical aspects on DHM and inverse approaches are developed in a tutorial published in JOSA A [1], and this code constitutes a  demonstrator of the algorithms presented in this publication.
 
-The main reconstruction scriptn, named `reconstruction_script.m`, can be executed as is, and can perform a reconstruction from in-line hologram data whose parameters (data and results saving paths, calibration, algorithm settings) have to be set in the file `parameters.m` (refer to it for more details).
+The main reconstruction script, named `reconstruction_script.m`, can be executed as is, and can perform a reconstruction from in-line hologram data whose parameters (data and results saving paths, calibration, algorithm settings) have to be set in the file `parameters.m` (refer to it for more details).
 
 Summary
 -------
