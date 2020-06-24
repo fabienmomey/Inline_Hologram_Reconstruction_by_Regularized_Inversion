@@ -5,6 +5,8 @@ This toolbox implements Inverse Problems based algorithms dedicated to image rec
 
 The main reconstruction script, named `reconstruction_script.m`, can be executed as is, and can perform a reconstruction from in-line hologram data whose parameters (data and results saving paths, calibration, algorithm settings) have to be set in the file `parameters.m` (refer to it for more details).
 
+All settings are stored in a global structure `EXPE` which also store the reconstruction results. At the end of the script, this structure is saved in a MAT-file `experiment.m` in a timstamped subdirectory contained in the `results` directory that is named as the data hologram file.
+
 Summary
 -------
 
