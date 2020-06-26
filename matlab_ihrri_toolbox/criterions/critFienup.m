@@ -93,7 +93,7 @@ function [fx,gx,varargout] = critFienup(x,y,Hz,H_z,varargin)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Extract size (in pixels) of the field of view
-[npix_W, npix_H] = size(y);
+[npix_W, npix_H, ncomp] = size(x);
 
 %% Criterion parameters
 flag_c = true;

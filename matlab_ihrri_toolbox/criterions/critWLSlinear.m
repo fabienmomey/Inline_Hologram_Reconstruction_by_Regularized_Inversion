@@ -99,7 +99,7 @@ function [fx,gx,varargout] = critWLSlinear(x,y,Gz,G_z,varargin)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Extract size (in pixels) of the field of view
-[npix_W, npix_H] = size(y);
+[npix_W, npix_H, ncomp] = size(x);
 
 %% Criterion parameters
 flag_c = true;

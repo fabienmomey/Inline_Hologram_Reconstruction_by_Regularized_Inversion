@@ -118,7 +118,7 @@ EXPE = struct();
 %% DIRECTORIES AND FILENAMES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Global directory
-EXPE.holodir = ['./'];
+EXPE.holodir = [''];
 % Data directory
 EXPE.holodir_data = [EXPE.holodir,'data/2019_06_07_billes1mu_63_JOSAA/'];
 % Data filename
@@ -148,9 +148,9 @@ EXPE.holodir_results_timestamp = [EXPE.holodir_results_expe,newdate_expe,'/'];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% I choose the reconstruction method: 'Fienup' or 'RI'
-EXPE.flag_rec_meth = 'RI';
+EXPE.flag_rec_meth = 'Fienup';
 %% Choose Fienup criterion (only useful if flag_rec_meth = 'RI')
-EXPE.flag_fienup = false;
+EXPE.flag_fienup = true;
 
 %% My object of interest is purely 'dephasing' or 'absorbing', or 'unknown'.
 %% It allows to define the propagation kernel and default bound constraints.
@@ -159,7 +159,7 @@ EXPE.type_obj = 'dephasing';
 %% I want a linearization of the intensity formation model: true or false
 %% (only useful if type_obj != 'unknown')
 %% If Fienup ER is performed, this flag must be set to false
-EXPE.flag_linearize = true;
+EXPE.flag_linearize = false;
 
 %% My reconstruction requires:
 % - zero-padding for performing convolutions
