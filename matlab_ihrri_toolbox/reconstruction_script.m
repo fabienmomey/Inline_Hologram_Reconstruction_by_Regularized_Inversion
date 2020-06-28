@@ -306,8 +306,8 @@ if ((strcmp(EXPE.type_obj,'dephasing') || strcmp(EXPE.type_obj,'absorbing'))...
     Crit = @(x) (critWLSlinear(x,EXPE.data,Propag,BackPropag,-1));
 elseif ((strcmp(EXPE.type_obj,'unknown') && EXPE.flag_fienup) || strcmp(EXPE.flag_rec_meth,'Fienup'))
     Crit = @(x) (critFienup(x,sqrt(EXPE.data),Propag,BackPropag,-1));
-elseif (strcmp(EXPE.type_obj,'unknown') && ~EXPE.flag_fienup)
-    Crit = @(x) (critWLS(x,EXPE.data,Propag,BackPropag,-1));
+else
+    Crit = @(x) (critWLS(x,EXPE.data,Propag,BackPropag,-1));  
 end
 
 % PREPARE ALGORITHM
@@ -318,11 +318,12 @@ switch EXPE.flag_rec_meth
                 && EXPE.flag_linearize)
             EXPE.Lip = 2*max(EXPE.Gz(:).*EXPE.Gz(:));
         else
-            EXPE.Lip = 2*max(conj(EXPE.Hz(:)).*EXPE.Hz(:));
+            EXPE.Lip = 2*max(conj(EXPE.Hz(:)).*EXPE.Hz(:))^2;
         end
           
         RECoptions = struct('Lip',EXPE.Lip,...
             'type_obj',EXPE.type_obj,...
+            'flag_linearize',EXPE.flag_linearize,...
             'rconst',EXPE.real_constraint,...
             'iconst',EXPE.imag_constraint,...
             'mu',EXPE.muSparse,...

@@ -7,8 +7,8 @@ The main reconstruction script, named `reconstruction_script.m`, can be executed
 
 All settings are stored in a global structure `EXPE` which also store the reconstruction results. At the end of the script, this structure is saved in a MAT-file `experiment.m` in a timstamped subdirectory contained in the `results` directory that is named as the data hologram file.
 
-Summary
--------
+PRINCIPLE
+--
 
 The code is able to perform 2 kind of "Inverse problems" algorithms aiming at reconstructing an image `X` from an intensity in-line hologram  image `Y`. In this code, `X` is 2-component image ([width,height,2]), each one corresponding respectively to the real and imaginary part of the complex deviation from the unit transmittance plane :
 
@@ -63,6 +63,23 @@ that models the "full" intensity hologram image from the "complex" image X.
 Note that the code is able to perform fied-of-view extension in a rigorous way by setting an extension factor in the settings (see "parameters.m").
 
 In the future, an edge-preserving regularizer will be implemented which can be added to the reconstruction criterion (see [1] for theoretical details).
+
+POSSIBLE COMBINATIONS OF PARAMETERS
+--
+
+| FLAG_REC_METH  | TYPE_OBJ | FLAG_FIENUP  | FLAG_LINEARIZE  | REAL_CONSTRAINT  | IMAG_CONSTRAINT  |
+| ------------ | ------------ | ------------ | ------------ | ------------ | ------------ |
+| Fienup  | unknown  | *unused*  | false (mandatory)  | [-2,0] (default) | [-1,1] (default)  |
+| Fienup  | dephasing  | *unused*  | false (mandatory)  | [0,0] (forced)  | [-1,1] (default)  |
+| Fienup  | absorbing  | *unused*  | false (mandatory)  | [-1,0] (default)  | [0,0] (forced) |
+| RI | unknown  | true | false (mandatory)  | [-2,0] (default) | [-1,1] (default)  |
+| RI  | dephasing  | true | false (mandatory)  |  [0,0] (forced)  | [-1,1] (default)  |
+| RI  | absorbing  | true | false (mandatory)  |  [-1,0] (default)  | [0,0] (forced) |
+| RI | unknown  | false | *unused*  | [-2,0] (default) | [-1,1] (default)  |
+| RI  | dephasing  | false | false |  [0,0] (forced)  | [-1,1] (default)  |
+| RI  | absorbing  | false | false |  [-1,0] (default)  | [0,0] (forced) |
+| RI  | dephasing  | false | true |  *unused*  | [-1,1] (default)  |
+| RI  | absorbing  | false | true |  [-1,0] (default)  | *unused* |
 
 References
 

@@ -36,6 +36,9 @@ function [xopt,varargout] = algoRI(x0,crit,options)
 %               => the unkown image X represents the complex 
 %               deviation from the unit transmittance plane.
 %               => the dimensions of X are just [width,height,2].
+%       * FFLAG_LINEARIZE:  a flag (default: false) for applying a 
+%                           linearization of the intensity formation model
+%                           (only useful if TYPE_OBJ ~= 'unknown').
 %       * FLAG_FIENUP:  a flag (default: false) to select de the Fienup 
 %                       criterion in the case TYPE_OBJ = 'unknown'. If
 %                       false, the weighted least squares criterion on 
@@ -177,35 +180,23 @@ if (~isfield(options, 'type_obj'))
     options.type_obj = 'unknown';
 end
 
+if (~isfield(options, 'flag_linearize'))
+    options.flag_linearize = false;
+end
+
 if (strcmp(options.type_obj,'dephasing'))
-    options.rconst = [0.0,0.0];
+    options.rconst = [0,0];
 elseif (strcmp(options.type_obj,'absorbing'))
     options.iconst = [0.0,0.0];
     options.rconst = [-1.0,options.rconst(2)];
 end
 
-% %% Get the chosen criterion
-% if (~isfield(options, 'flag_fienup'))
-%     options.flag_fienup = false;
-% end
-% if (~isfield(options, 'w'))
-%     options.w = ones(npix_H,npix_W);
-% end
-% 
-% if (strcmp(options.type_obj,'dephasing') || strcmp(options.type_obj,'absorbing'))
-%     crit = @(x) (critWLSlinear(x,y,Hz,H_z,-1,options.w));
-% elseif (strcmp(options.type_obj,'unknown') && options.flag_fienup)
-%     crit = @(x) (critFienup(x,y,Hz,H_z,-1,options.w));
-% elseif (strcmp(options.type_obj,'unknown') && ~options.flag_fienup) 
-%     crit = @(x) (critWLS(x,y,Hz,H_z,-1,options.w));
-% end
-
 %% Extract soft-thresholding features
 if (options.mu>0.0)
     flag_softthreshod = true;
     % determine behaviour of the soft-thresholding if constraints are set
-    % and TYPE_OBJ is "dephasing" or "absorbing"
-    if (strcmp(options.type_obj,'dephasing'))
+    % and TYPE_OBJ is "dephasing" or "absorbing" and FLAG_LINEARIZE is true
+    if (strcmp(options.type_obj,'dephasing') && options.flag_linearize)
         if (options.iconst(1)>=0.0 && options.iconst(2)>0.0 && options.iconst(1)<=options.iconst(2))
             disp('Positivity constraint set.');
             flag_const = 1;                                                         % positivity
@@ -216,7 +207,7 @@ if (options.mu>0.0)
             disp('No constraint set.');
             flag_const = 0;                                                         % no constraint
         end
-    else
+    elseif (strcmp(options.type_obj,'absorbing') && options.flag_linearize)
         if (options.rconst(1)>=0.0 && options.rconst(2)>0.0 && options.rconst(1)<=options.rconst(2))
             disp('Positivity constraint set.');
             flag_const = 1;                                                         % positivity
@@ -227,6 +218,8 @@ if (options.mu>0.0)
             disp('No constraint set.');
             flag_const = 0;                                                         % no constraint
         end
+    else
+        flag_const = 0;  
     end  
 else
     flag_softthreshod = false;
@@ -309,10 +302,10 @@ for i=1:options.maxiter
       
     %% Apply bound constraints  
     xopt = uopt;
-    if (strcmp(options.type_obj,'dephasing'))
+    if (strcmp(options.type_obj,'dephasing') && options.flag_linearize)
         idoutconst = find(xopt<options.iconst(1) | xopt>options.iconst(2));
         xopt(idoutconst) = 0.0;
-    elseif (strcmp(options.type_obj,'absorbing'))
+    elseif (strcmp(options.type_obj,'absorbing') && options.flag_linearize)
         idoutconst = find(xopt<options.rconst(1) | xopt>options.rconst(2));
         xopt(idoutconst) = 0.0;
     else

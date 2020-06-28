@@ -133,6 +133,9 @@ fx = sum(cIopt_y(:).^2);
 gxcplx = 4*c*H_z((uopt.*(cIopt_y)));
 
 gx = zeros(npix_W,npix_H,2);
+%gx(:,:,1) = real(4*c*H_z(real(uopt).*(cIopt_y)));
+%gx(:,:,2) = imag(4*c*H_z(imag(uopt).*(cIopt_y)));
+
 gx(:,:,1) = real(gxcplx);
 gx(:,:,2) = imag(gxcplx);
 
