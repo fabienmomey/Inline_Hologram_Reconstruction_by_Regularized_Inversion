@@ -69,15 +69,12 @@ POSSIBLE COMBINATIONS OF PARAMETERS
 
 | FLAG_REC_METH  | TYPE_OBJ | FLAG_FIENUP  | FLAG_LINEARIZE  | REAL_CONSTRAINT  | IMAG_CONSTRAINT  |
 | ------------ | ------------ | ------------ | ------------ | ------------ | ------------ |
-| Fienup  | unknown  | *unused*  | false (mandatory)  | [-2,0] (default) | [-1,1] (default)  |
-| Fienup  | dephasing  | *unused*  | false (mandatory)  | [0,0] (forced)  | [-1,1] (default)  |
-| Fienup  | absorbing  | *unused*  | false (mandatory)  | [-1,0] (default)  | [0,0] (forced) |
-| RI | unknown  | true | false (mandatory)  | [-2,0] (default) | [-1,1] (default)  |
-| RI  | dephasing  | true | false (mandatory)  |  [0,0] (forced)  | [-1,1] (default)  |
-| RI  | absorbing  | true | false (mandatory)  |  [-1,0] (default)  | [0,0] (forced) |
-| RI | unknown  | false | *unused*  | [-2,0] (default) | [-1,1] (default)  |
-| RI  | dephasing  | false | false |  [0,0] (forced)  | [-1,1] (default)  |
-| RI  | absorbing  | false | false |  [-1,0] (default)  | [0,0] (forced) |
+| -  | unknown  | -  | -  | [-2,0] (default) | [-1,1] (default)  |
+| -  | dephasing  | - | - | [0,0] (forced)  | [-1,1] (default)  |
+| -  | absorbing  | - | - | [-1,0] (default)  | [0,0] (forced) |
+| Fienup  | *whatever*  | *unused*  | false (mandatory)  | *depends on TYPE_OBJ* | *depends on TYPE_OBJ*  |
+| RI | *whatever*  | true | false (mandatory)  | *depends on TYPE_OBJ*  | *depends on TYPE_OBJ*  |
+| RI | unknown | false | false (mandatory)   | *depends on TYPE_OBJ*  | *depends on TYPE_OBJ*  |
 | RI  | dephasing  | false | true |  *unused*  | [-1,1] (default)  |
 | RI  | absorbing  | false | true |  [-1,0] (default)  | *unused* |
 
@@ -124,4 +121,3 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
