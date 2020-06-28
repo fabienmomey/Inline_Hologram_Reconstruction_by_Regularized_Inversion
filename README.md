@@ -74,7 +74,7 @@ POSSIBLE COMBINATIONS OF PARAMETERS
 | -  | absorbing  | - | - | [-1,0] (default)  | [0,0] (forced) |
 | Fienup  | *whatever*  | *unused*  | false (mandatory)  | *depends on TYPE_OBJ* | *depends on TYPE_OBJ*  |
 | RI | *whatever*  | true | false (mandatory)  | *depends on TYPE_OBJ*  | *depends on TYPE_OBJ*  |
-| RI | unknown | false | false (mandatory)   | *depends on TYPE_OBJ*  | *depends on TYPE_OBJ*  |
+| RI | *whatever* | false | false   |  *depends on TYPE_OBJ*  | *depends on TYPE_OBJ*  |
 | RI  | dephasing  | false | true |  *unused*  | [-1,1] (default)  |
 | RI  | absorbing  | false | true |  [-1,0] (default)  | *unused* |
 
