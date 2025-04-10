@@ -118,7 +118,7 @@ EXPE = struct();
 %% DIRECTORIES AND FILENAMES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Global directory
-EXPE.holodir = [''];
+EXPE.holodir = ['./'];
 % Data directory
 EXPE.holodir_data = [EXPE.holodir,'data/2019_06_07_billes1mu_63_JOSAA/'];
 % Data filename

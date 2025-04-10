@@ -66,7 +66,7 @@ scrsz = get(groot,'ScreenSize');
 % get image size
 imsize = size(im);
 
-h = figure('Name',figtitle,'Position',[scrsz(3)/4 scrsz(4)/2 imsize(2) imsize(1)]);
+h = figure('Name',figtitle) ; % ,'Position',[scrsz(3)/4 scrsz(4)/2 imsize(2) imsize(1)]);
 imagesc(im); colormap(gray);
 axis xy;
 ax = gca;
