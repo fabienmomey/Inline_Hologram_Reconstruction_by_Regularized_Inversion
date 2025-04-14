@@ -20,7 +20,7 @@ function [fx,gx,varargout] = critWLS(x,y,Hz,H_z,varargin)
 %   one corresponding respectively to the real and imaginary part of the
 %   complex deviation from the unit transmittance plane)
 %
-%   Y: data image (square root of intensity measurements).
+%   Y: data image (intensity measurements).
 %
 %   Hz: function handle to perform the propagation operator  (see 
 %       getFresnelPropagation and propagationOperator functions).
@@ -39,6 +39,10 @@ function [fx,gx,varargout] = critWLS(x,y,Hz,H_z,varargin)
 %
 %   - W:    diagonal elements of the inverse noise covariance matrix C^{-1}
 %           => under hypothesis of uncorrelated noise [2]. 
+%
+%   The function returns:
+%   - FX : the cost value (scalar)
+%   - GX : the gradient image relative to X
 %
 %   In VARGAROUT, 2 additional parameters can be extracted:
 %   - [fx,gx,c] = critWLS(x,y,Hz,H_z,c) if c < 0 or c not set

@@ -263,9 +263,9 @@ clear data;
 % INITIALIZATION PARAMETERS  
 if ((strcmp(EXPE.type_obj,'dephasing') || strcmp(EXPE.type_obj,'absorbing'))...
     && EXPE.flag_linearize)
-    EXPE.o0 = zeros([EXPE.fov_width, EXPE.fov_height]);
+    EXPE.o0 = zeros([EXPE.fov_height, EXPE.fov_width]);
 else
-    EXPE.o0 = zeros([EXPE.fov_width, EXPE.fov_height, 2]);
+    EXPE.o0 = zeros([EXPE.fov_height, EXPE.fov_width, 2]);
 end
 
 % PROPAGATION AND BACKPROPAGATION FUNCTION HANDLES

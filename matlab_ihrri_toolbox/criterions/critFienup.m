@@ -39,6 +39,10 @@ function [fx,gx,varargout] = critFienup(x,y,Hz,H_z,varargin)
 %   - W:    diagonal elements of the inverse noise covariance matrix C^{-1}
 %           => under hypothesis of uncorrelated noise [2]. 
 %
+%   The function returns:
+%   - FX : the cost value (scalar)
+%   - GX : the gradient image relative to X
+%
 %   In VARGAROUT, 2 additional parameters can be extracted:
 %   - [fx,gx,c] = critWLS(x,y,Hz,H_z,c) if c < 0 or c not set
 %   - [fx,gx,residues] = critWLS(x,y,Hz,H_z,c) if c > 0
