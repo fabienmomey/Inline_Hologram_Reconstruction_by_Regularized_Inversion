@@ -45,7 +45,6 @@ clear all;
 close all;
 clc;
 
-addpath(genpath('../../VMLMB/'));
 addpath(genpath('../.'));
 
 %% Create the dataset
@@ -68,14 +67,14 @@ data_unnoisy = propagationOperator(data_unnoisy,M,true) ;
 sigma_noise = 0.1 ;
 data_noisy = data_unnoisy + sigma_noise*randn(npix_H,npix_W) ;
 
-ihrri_show(data_unnoisy,'Data') ;
+ihrri_show(data_noisy,'Data') ;
 
 %% Forward and backward models
 Forward = @(o) (propagationOperator(o,M,true));
 Backward = @(o) (propagationOperator(o,conj(M),true));
 
 %% Regularization
-muEdgePres = 1 ;
+muEdgePres = 0.001 ;
 epsilonEdgePres = 1.0e-4 ;
 Grad = getGradientOperator(2*npix_W, 2*npix_H) ;
 % Gradient in X direction
@@ -87,7 +86,6 @@ GxT = @(o) (propagationOperator(o,conj(Grad),true)) ;
 % Adjoint gradient in Y direction
 GyT = @(o) (propagationOperator(o,Grad',true)) ;
 Reg = @(x) (critEdgePreservingSmoothing(x,Gx,Gy,GxT,GyT,muEdgePres,epsilonEdgePres)) ;
-
 
 % Vérif. correct "adjointness" of gradient operators
 % x=randn(npix_H, npix_W) ;
@@ -101,25 +99,14 @@ Reg = @(x) (critEdgePreservingSmoothing(x,Gx,Gy,GxT,GyT,muEdgePres,epsilonEdgePr
 Crit = @(x) (critWLSlinearDenoising(x,data_noisy,Forward,Backward,Reg,1)) ;
 
 %% Reconstructor
-maxiter = 200 ;
-
-% % Sparsity
-% muSparse = 0.0 ;
-% % Constraint
-% real_constraint = [0,Inf] ;
-% % Reconstructor options
-% RECoptions = struct('Lip',1000*Lip,...
-%     'type_obj','absorbing',...
-%     'flag_linearize',true,...
-%     'rconst',real_constraint,...
-%     'mu', muSparse,...
-%     'reg', Reg,...
-%     'maxiter', maxiter,...
-%     'flag_cost',true,...
-%     'flag_evolx',false,...
-%     'verbose',true);
+RECoptions = struct('type_obj','absorbing',...
+            'flag_linearize',true,...
+            'rconst',[0,Inf],...
+            'maxiter', 50,...
+            'flag_cost',true,...
+            'flag_evolx',false,...
+            'verbose',true);
 
 x0 = zeros(npix_H,npix_W) ;
-% [RECxopt,RECevolcost] = algoRI(x0,Crit,RECoptions) ;
-[xopt, fopt, gopt, status] = optm_vmlmb(Crit, x0, 'maxiter', maxiter, 'verb', 1);
+[xopt,fxopt,Gxopt,c,evolcost] = algoRI(x0,Crit,RECoptions);
 ihrri_show(xopt,'Reconstruction');

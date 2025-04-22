@@ -194,7 +194,7 @@ if (strcmp(options.type_obj,'dephasing'))
     options.rconst = [0,0];
 elseif (strcmp(options.type_obj,'absorbing'))
     options.iconst = [0.0,0.0];
-    options.rconst = [-1.0,options.rconst(2)];
+    options.rconst = [options.rconst(1),options.rconst(2)];
 end
 
 %% Extract soft-thresholding features
@@ -381,7 +381,7 @@ for i=1:options.maxiter
         % end
         %% Evaluate the stopping criterion of the backtracking procedure
         ik = ik+1 ;
-        if (fuopt <= quopt)
+        if (fuopt <= quopt || (~flag_backtrack_continue && ik>0))
             %% Stop backtracking flag
             flag_backtrack_continue = false ;
             uopt = uopt_new ; 
