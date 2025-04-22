@@ -1,6 +1,7 @@
 % Test script of functions:
 %
-% [Hz] = getFresnelPropagator(npix_W, npix_H, pixel_size, lambda, n_0, z, varargin)
+% [Hz] = getFresnelPropagator(npix_W, npix_H, pixel_size, lambda, n_0, z, NA, varargin)
+% [Hz] = getRayleighSommerfeldPropagator(npix_W, npix_H, pixel_size, lambda, n_0, z, NA, varargin)
 % [xconv] = propagationOperator(x,H,varargin)
 %
 % This script loads a ground truth image (deviation from the 1-transmittance plane) 
@@ -48,9 +49,9 @@ clear all;
 close all;
 clc;
 
-addpath(genpath('../.'));
+addpath(genpath('./.'));
 
-datadir = '../data/Bead_simulations/';
+datadir = './data/Bead_simulations/';
 
 % Load image
 run([datadir,'parameters.m']);
@@ -64,6 +65,7 @@ z_s = 7.2822e-6 ;
 mag = 56.7; 
 lambda = 532e-9;
 n_0 = 1.52; 
+NA = 2.0 ;
 pixel_size = 2.2e-6 / mag; 
 npix_H = osize(1); 
 npix_W = osize(2); 
@@ -80,7 +82,8 @@ ihrri_show(imag(o), 'Phase Beads');
 
 %% Without zero-padding
 
-[Hz]=getFresnelPropagator(npix_W, npix_H, pixel_size, lambda, n_0, z_s);
+[Hz]=getFresnelPropagator(npix_W, npix_H, pixel_size, lambda, n_0, z_s, NA);
+% [Hz]=getRayleighSommerfeldPropagator(npix_W, npix_H, pixel_size, lambda, n_0, z_s, NA);
 
 ihrri_show(fftshift(real(ifft2(Hz))), 'No padding: Real part impulse response');
 ihrri_show(fftshift(imag(ifft2(Hz))), 'No padding: Imag part impulse response');
@@ -91,7 +94,8 @@ ihrri_show(abs(utot_nopad).^2, 'Intensity');
 
 %% With zero-padding (the best way !)
 
-[Hz_pad]=getFresnelPropagator(2*npix_W, 2*npix_H, pixel_size, lambda, n_0, z_s);
+[Hz_pad]=getFresnelPropagator(2*npix_W, 2*npix_H, pixel_size, lambda, n_0, z_s, NA);
+% [Hz_pad]=getRayleighSommerfeldPropagator(2*npix_W, 2*npix_H, pixel_size, lambda, n_0, z_s, NA);
 
 ihrri_show(fftshift(real(ifft2(Hz_pad))), '0-padding: Real part impulse response');
 ihrri_show(fftshift(imag(ifft2(Hz_pad))), '0-padding: Imag part impulse response');

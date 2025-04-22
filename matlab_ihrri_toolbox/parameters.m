@@ -22,6 +22,8 @@
 %                   folder tree from HOLODIR_RESULTS.
 %
 % - FLAG_REC_METH:  'Fienup' or 'RI' => Reconstruction method.
+% - FLAG_BACKTRACK: perform backtracking procedure for optimal step in the
+%                   FISTA algorithm (only useful if flag_rec_meth = 'RI')
 % - FLAG_FIENUP:    true or false => Choose Fienup criterion 
 %                   (only useful if flag_rec_meth = 'RI').
 % - TYPE_OBJ:       'unknown', 'dephasing' or 'absorbing' => the object of 
@@ -67,9 +69,7 @@
 % - MUSPARSE:       hyperparameter for the sparsity constraint 
 %                   (soft-thresholding operator)
 % - MUEDGEPRES:     hyperparameter \mu for the edge-preserving regularizer. 
-%                   Not yet implemented.
 % - EPSILONEDGEPRES:hyperparameter \epsilon for the edge-preserving regularizer. 
-%                   Not yet implemented.
 % - MAXITER:        Maximum number of iterations.
 %
 % Created: 04/06/2020 (mm/dd/yyyy)
@@ -149,17 +149,21 @@ EXPE.holodir_results_timestamp = [EXPE.holodir_results_expe,newdate_expe,'/'];
 
 %% I choose the reconstruction method: 'Fienup' or 'RI'
 EXPE.flag_rec_meth = 'RI';
+EXPE.flag_backtrack = true ; % Backtracking (only useful if flag_rec_meth = 'RI')
 %% Choose Fienup criterion (only useful if flag_rec_meth = 'RI')
 EXPE.flag_fienup = false;
 
 %% My object of interest is purely 'dephasing' or 'absorbing', or 'unknown'.
 %% It allows to define the propagation kernel and default bound constraints.
-EXPE.type_obj = 'unknown';
+EXPE.type_obj = 'dephasing';
+
+%% I choose which propagation kernel I will use: Fresnel 'Fr' or Rayleigh-Sommerfeld 'RS'
+EXPE.type_prop = 'RS' ;
 
 %% I want a linearization of the intensity formation model: true or false
 %% (only useful if type_obj ~= 'unknown')
 %% If Fienup ER is performed, this flag must be set to false
-EXPE.flag_linearize = false;
+EXPE.flag_linearize = true;
 
 %% My reconstruction requires:
 % - zero-padding for performing convolutions
@@ -182,12 +186,13 @@ EXPE.z_s = 7.2822e-06 ;          % (m) Distance from the sensor plane to
 EXPE.mag = 56.7 ;                % Lens magnification
 EXPE.lambda = 532e-9  ;          % (m) wavelength
 EXPE.n_0 = 1.52 ;                % Medium refractive index (not mandatory)
+EXPE.NA = 0.0 ;                  % Numerical aperture (sin(theta))
 
 % - DIGITAL
 EXPE.pixel_size = 2.2e-6/EXPE.mag ;	% (m) % pixel size
-EXPE.fov_width = 512 ;           % field-of-view width in pixels
-EXPE.fov_height = 512 ;          % field-of-view	height in pixels
-EXPE.fov_extension_factor = 2.0; % field-of-view extension factor
+% EXPE.fov_width = 512 ;           % field-of-view width in pixels
+% EXPE.fov_height = 512 ;          % field-of-view	height in pixels
+EXPE.fov_extension_factor = 2.0 ; % field-of-view extension factor
                             % (cannot be <1 ; if =1 => no fov extension)
 % RECONSTRUCTION PARAMETERS
 EXPE.real_constraint = [-2,0];   % a 2-element vector giving hard constraint
@@ -199,7 +204,7 @@ EXPE.real_constraint = [-2,0];   % a 2-element vector giving hard constraint
 %                           \_ TYPE_OBJ = 'unknown'
 %                               \_ default: [-2,0] (because 0 < |T| < 1
 %                                                   and -1 < cos(phi) < 1)
-EXPE.imag_constraint = [-1,1];   % a 2-element vector giving hard constraint
+EXPE.imag_constraint = [0,Inf];   % a 2-element vector giving hard constraint
 %                          parameter for the imag part of X
 %                           \_ TYPE_OBJ = 'dephasing'
 %                               \_ default: [-1,1] (X is purely imaginary)
@@ -210,15 +215,13 @@ EXPE.imag_constraint = [-1,1];   % a 2-element vector giving hard constraint
 %                                                   and -1 < sin(phi) < 1)
 EXPE.muSparse = 0.001;             % hyperparameter for the sparsity constraint
                             % (soft-thresholding operator)
-EXPE.muEdgePres = 0.1;           % hyperparameter \mu for the edge-preserving
+EXPE.muEdgePres = 0.01;    % hyperparameter \mu for the edge-preserving
                             % regularizer (if required)
-                            %% NOT YET AVAILABLE
-EXPE.epsilonEdgePres = 1.0e-2;   % hyperparameter \epsilon for the
-                            % edge-preserving regularizer (if required) 
-                            %% NOT YET AVAILABLE
+EXPE.epsilonEdgePres = 1.0e-3;   % hyperparameter \epsilon for the
+                                 % edge-preserving regularizer (if required) 
 
 % OPTIMIZATION PARAMETERS
-EXPE.maxiter = 50;              % maximum number of iterations
+EXPE.maxiter = 100;              % maximum number of iterations
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

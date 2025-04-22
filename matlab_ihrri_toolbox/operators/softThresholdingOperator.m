@@ -1,5 +1,5 @@
-function [xproj] = softThresholdingOperator(x,mu,varargin)
-% [xproj] = softThresholdingOperator(x,mu,varargin)
+function [xproj, fxproj] = softThresholdingOperator(x,mu,varargin)
+% [xproj, fxproj] = softThresholdingOperator(x,mu,varargin)
 %
 %   This function performs a soft-thresholding operator on image X.
 %
@@ -114,6 +114,7 @@ if (~flag_cplx) %% Case real
     else
         xproj = flag_const * max(0.0,flag_const*(x-mu));
     end
+    fxproj = mu*sum(abs(xproj(:))) ;
 else            %% Case complex
     xproj = zeros(size(x));
     rex = x(:,:,1);
@@ -121,10 +122,12 @@ else            %% Case complex
     if (flag_separable)
         xproj(:,:,1) = sign(rex) .* max(0.0,abs(rex)-mu);
         xproj(:,:,2) = sign(imx) .* max(0.0,abs(imx)-mu);
+        fxproj = mu*(sum(abs(xproj(:,:,1)),'all') + sum(abs(xproj(:,:,2)),'all')) ;
     else
         maxx = max(0.0,1.0-(mu./sqrt(rex.^2+imx.^2)));
         xproj(:,:,1) = maxx.*rex;
         xproj(:,:,2) = maxx.*imx;
+        fxproj = mu*sum(sqrt(xproj(:,:,1).^2+xproj(:,:,2).^2),'all');
     end
 end
 

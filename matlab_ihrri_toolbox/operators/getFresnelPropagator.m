@@ -1,4 +1,4 @@
-function [Hz] = getFresnelPropagator(npix_W, npix_H, pixel_size, lambda, n_0, z, varargin)
+function [Hz] = getFresnelPropagator(npix_W, npix_H, pixel_size, lambda, n_0, z, NA, varargin)
 % [Hz] = getFresnelPropagator(npix_W, npix_H, pixel_size, lambda, n_0, z, varargin)
 %
 %   This function calculates the Fresnel propagation kernel used for 
@@ -12,6 +12,7 @@ function [Hz] = getFresnelPropagator(npix_W, npix_H, pixel_size, lambda, n_0, z,
 %   - LAMBDA: illumination wavelength.
 %   - N_0: refractive index of the medium.
 %   - Z: propagation distance.
+%   - NA: numerical aperture.
 % 
 %   The kernel calculation is based on a particular value :
 %
@@ -32,7 +33,7 @@ function [Hz] = getFresnelPropagator(npix_W, npix_H, pixel_size, lambda, n_0, z,
 %   - TYPE_HOLOGRAM: indicates if complex wave or intensity data will be
 %   used. Possible values are
 %       > 'complex' (default): the Fresnel propagation kernel HZ is used in
-%       the context of complex wave measurements. It requires of full
+%       the context of complex wave measurements. It requires the full
 %       complex Fresnel kernel.
 %
 %           U = |A0|.(1 + HZ*O)
@@ -134,10 +135,10 @@ flag_phaseref = false;  % if not specified:
                         % default value for FLAG_PHASEREF
 type_kernel = 'Hz';
 
-if (nargin > 6)
+if (nargin > 7)
     flag_phaseref = varargin{1};
     type_kernel = 'Hz';
-    if (nargin > 8)
+    if (nargin > 9)
         % Check TYPE_HOLOGRAM and FLAG_LINEARIZE
         if (strcmp(varargin{2},'intensity') && varargin{3} == true)
             flag_phaseref = false;
@@ -159,58 +160,78 @@ elseif (strcmp(type_kernel,'Gz_absorbing'))
 end
 
 % Wave number
-k0 = 2*n_0*pi/lambda;
+k_n0 = 2*n_0*pi/lambda;
+lambda_n = (2*pi)./k_n0;
 
-% Get z limit for Shannon sampling compatibility
-z_shannon=max([npix_W, npix_H])*(pixel_size^2)/lambda;
-fprintf('Shannon''s parameter = %.3f.\n', z_shannon);
-
-flag_shannon = (z>=z_shannon);
-
-if(flag_shannon)
-    % Analytic impulse response
-    disp('Impulse response.');
-    
-    x=get_fft_compatible_coordinates(npix_W, pixel_size);
-    y=get_fft_compatible_coordinates(npix_H, pixel_size);
-    [X,Y]=meshgrid(x,y);
-    
-    n0_on_i_pi_lambda_z = n_0/1i/lambda/z;
-    hz=n0_on_i_pi_lambda_z*exp(n_0*1i*pi/lambda/z*(X.^2+Y.^2));
-    if (flag_phaseref)
-        hz=hz.*exp(1i*k0*z);
-    end
-    
-    if (strcmp(type_kernel,'Gz_dephasing'))
-        hz = -2*imag(hz);
-    elseif (strcmp(type_kernel,'Gz_absorbing'))
-        hz = 2*real(hz);
-    end
-    
-    Hz=(pixel_size^2)*fft2(ifftshift(hz));
-    
-    if (~strcmp(type_kernel,'Hz'))
-        Hz = real(Hz);
-    end
-    
-    % Deprecated implementation (get the backpropagator)
-    % H_z=conj(Hz);
+u=get_fft_compatible_coordinates(npix_W, 1.0/npix_W/pixel_size);
+v=get_fft_compatible_coordinates(npix_H, 1.0/npix_H/pixel_size);
+[U,V]=meshgrid(u,v);
+%% Compute NA "mask" in MTF space
+lambda2_f2 = ((lambda_n)^2)*(U.^2+V.^2) ;
+if (NA>0)
+    ewald = (lambda2_f2<(NA^2)) ; %% LA COUPURE PAR NA DOIT SE FAIRE DANS L'ESPACE DES FRÉQUENCES "MÉTRIQUES"
 else
+    ewald = logical(ones(size(lambda2_f2))) ;
+end
+
+% % % % % % Get z limit for Shannon sampling compatibility
+% % % % % z_shannon=max([npix_W, npix_H])*(pixel_size^2)/lambda;
+% % % % % fprintf('Shannon''s parameter = %.3f.\n', z_shannon);
+% % % % % 
+% % % % % flag_shannon = (z>=z_shannon);
+% % % % % 
+% % % % % if(flag_shannon)
+% % % % %     % Analytic impulse response
+% % % % %     disp('Impulse response.');
+% % % % % 
+% % % % %     x=get_standard_coordinates(npix_W, pixel_size);
+% % % % %     y=get_standard_coordinates(npix_H, pixel_size);
+% % % % %     [X,Y]=meshgrid(x,y);
+% % % % % 
+% % % % %     n0_on_i_pi_lambda_z = n_0/1i/lambda/z;
+% % % % %     hz=n0_on_i_pi_lambda_z*exp(n_0*1i*pi/lambda/z*(X.^2+Y.^2));
+% % % % %     if (flag_phaseref)
+% % % % %         hz=hz.*exp(1i*k_n0*z);
+% % % % %     end
+% % % % % 
+% % % % %     if (strcmp(type_kernel,'Gz_dephasing'))
+% % % % %         hz = -2*imag(hz);
+% % % % %     elseif (strcmp(type_kernel,'Gz_absorbing'))
+% % % % %         hz = 2*real(hz);
+% % % % %     end
+% % % % % 
+% % % % %     Hz=(pixel_size^2)*fft2(hz);
+% % % % %     %% Apply NA "mask"
+% % % % %     Hz(~ifftshift(ewald)) = 0.0 ;
+% % % % % 
+% % % % %     if (strcmp(type_kernel,'Gz_dephasing'))
+% % % % %         Hz = real(fft2(-2*imag(ifft2(Hz))));
+% % % % %     elseif (strcmp(type_kernel,'Gz_absorbing'))
+% % % % %         Hz = real(fft2(2*real(ifft2(Hz))));
+% % % % %     end
+% % % % % 
+% % % % %     % Deprecated implementation (get the backpropagator)
+% % % % %     % H_z=conj(Hz);
+% % % % % else
     % Analytic transfert function (= Fourier transform of the impulse
     % response
     disp('Transfert function.');
     
     u=get_fft_compatible_coordinates(npix_W, 1.0/npix_W/pixel_size);
-    v=get_fft_compatible_coordinates(npix_H, 1.0/npix_W/pixel_size);
+    v=get_fft_compatible_coordinates(npix_H, 1.0/npix_H/pixel_size);
     [U,V]=meshgrid(u,v);
     
     i_pi_lambda_z=-1i*pi*lambda*z/n_0;
     
     Hz=ifftshift(exp(i_pi_lambda_z*( U.^2+V.^2) ));
+    % Hz=exp(i_pi_lambda_z*( U.^2+V.^2) );
     
     if (flag_phaseref)
-        Hz=Hz.*exp(1i*k0*z);
+        Hz=Hz.*exp(1i*k_n0*z);
     end
+
+    %% Apply NA "mask"
+    Hz(~ifftshift(ewald)) = 0.0 ;
     
     if (strcmp(type_kernel,'Gz_dephasing'))
         Hz = real(fft2(-2*imag(ifft2(Hz))));
@@ -220,6 +241,6 @@ else
     
     % Deprecated implementation (get the backpropagator)
     % H_z=conj(Hz);
-end
+    % % % % % end
 
 end

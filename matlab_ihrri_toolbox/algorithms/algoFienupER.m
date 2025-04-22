@@ -1,4 +1,4 @@
-function [xopt,evolcost,varargout] = algoFienupER(x0,crit,options)
+function [xopt, fxopt, Gxopt, c, varargout] = algoFienupER(x0,crit,options)
 % [xopt,varargout] = algoFienupER(x0,crit,options)
 %
 %   This function performs the Fienup's Error-Reduction algorithm [1]
@@ -306,11 +306,12 @@ for i=1:options.maxiter
     end
     
     %% Apply soft-thresholding operator
+    cost_xopt = 0.0 ;
     if (flag_softthreshod)
         if (strcmp(options.type_obj,'dephasing') || strcmp(options.type_obj,'absorbing'))
-            xopt = softThresholdingOperator(xopt,options.mu,flag_const);
+            [xopt,cost_xopt] = softThresholdingOperator(xopt,options.mu,flag_const);
         else
-            xopt = softThresholdingOperator(xopt,options.mu,flag_const,true);
+            [xopt,cost_xopt] = softThresholdingOperator(xopt,options.mu,flag_const,true);
         end
     end
     
@@ -325,7 +326,7 @@ for i=1:options.maxiter
     % Compute Cost (data-fidelity)
     if (options.flag_cost)      
         [fxopt,Gxopt,c] = crit(xopt);
-        evolcost(i+1) = fxopt + options.mu*sum(abs(xopt(:))) ;
+        evolcost(i+1) = fxopt + cost_xopt ;
     end
     
     % Compute SNR if required
@@ -358,6 +359,7 @@ for i=1:options.maxiter
     
 end
 
+%% Returned values
 if (options.flag_cost)
     varargout{1} = evolcost;
     if (flag_snr)

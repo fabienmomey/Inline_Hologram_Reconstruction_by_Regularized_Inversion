@@ -1,4 +1,4 @@
-function [xopt,varargout] = algoRI(x0,crit,options)
+function [xopt, fxopt, Gxopt, c, varargout] = algoRI(x0,crit,options,varargin)
 % [xopt,varargout] = algoRI(x0,crit,options)
 %
 %   This function performs the FISTA algorithm [1] for phase retrieval from 
@@ -133,17 +133,23 @@ function [xopt,varargout] = algoRI(x0,crit,options)
 
 %% Extract reconstruction parameters
 
-%% Lipschitz constant L
-flag_backtrack = true;
-if (isfield(options, 'Lip'))
-    flag_backtrack = false;
-else
-    options.Lip = 1.0;
-    options.eta = 1.1;
+%% Is a smooth regularizer given ?
+flag_reg = false ;
+if (isfield(options, 'reg'))
+    reg = options.reg ;
+    flag_reg = true ;
 end
 
-if (flag_backtrack)
-     warning('FISTA with backtracking.');
+%% Lipschitz constant L
+flag_backtrack = true;
+if (isfield(options, 'Lip') && ~isempty(options.Lip))
+    disp('FISTA without backtracking ...');
+    flag_backtrack = false;
+    Lip = options.Lip;
+else
+    disp('FISTA with backtracking ...');
+    Lip = 1.0;
+    eta = 1.1;
 end
 
 %% MU hyperparameter for performing a soft-thresholding 
@@ -161,7 +167,7 @@ else
         error('RCONST must be a 2-scalar vector.');
     end
     options.rconst=sort(options.rconst);
-    options.rconst = [max(options.rconst(1),-2.0),min(options.rconst(2),0.0)];
+    % options.rconst = [max(options.rconst(1),-2.0),min(options.rconst(2),0.0)];
 end
 
 if (~isfield(options, 'iconst'))
@@ -172,7 +178,7 @@ else
         error('ICONST must be a 2-scalar vector.');
     end
     options.iconst=sort(options.iconst);
-    options.iconst = [max(options.iconst(1),-1.0),min(options.iconst(2),1.0)];
+    % options.iconst = [max(options.iconst(1),-1.0),min(options.iconst(2),1.0)];
 end
 
 %% Extract TYPE_OBJ and adapt hard constraints bounds 
@@ -272,11 +278,18 @@ xprev = x0;
 %% INITIALIZE FISTA
 uopt = xprev;
 sinterp_prev = 1.0;
+[fuopt,Guopt,c] = crit(uopt);
+if (flag_reg)
+    [fureg,Gureg] = reg(uopt) ;
+    fuopt = fuopt + fureg ;
+    Guopt = Guopt + Gureg ;
+end
+fuprev = fuopt ;
+Guprev = Guopt ;
 
 %% Compute first cost (data-fidelity)
 if (options.flag_cost)
-    [fxopt,Gxopt,c] = crit(xprev);
-    evolcost = fxopt + options.mu*sum(abs(xprev(:))) ; 
+    evolcost = fuopt + options.mu*sum(abs(xprev(:))) ; 
 end
 
 if options.verbose
@@ -295,59 +308,110 @@ end
 
 %% GO ITERATE
 for i=1:options.maxiter
-    
-    %% Gradient descent step
-    [fxopt,Gxopt,c] = crit(uopt);
-    uopt = uopt - (1.0/options.Lip)*Gxopt;
-      
-    %% Apply bound constraints  
-    xopt = uopt;
-    if (strcmp(options.type_obj,'dephasing') && options.flag_linearize)
-        idoutconst = find(xopt<options.iconst(1) | xopt>options.iconst(2));
-        xopt(idoutconst) = 0.0;
-    elseif (strcmp(options.type_obj,'absorbing') && options.flag_linearize)
-        idoutconst = find(xopt<options.rconst(1) | xopt>options.rconst(2));
-        xopt(idoutconst) = 0.0;
-    else
-        xoptreal = xopt(:,:,1);
-        idoutconst = find(xoptreal<options.rconst(1) | xoptreal>options.rconst(2));
-        xoptreal(idoutconst) = 0.0;
-        
-        xoptimag = xopt(:,:,2);
-        idoutconst = find(xoptimag<options.iconst(1) | xoptimag>options.iconst(2));
-        xoptimag(idoutconst) = 0.0;
-        
-        xopt(:,:,1) = xoptreal;
-        xopt(:,:,2) = xoptimag;
-        
-        clear xoptreal xoptimag;
-    end
-    
-    %% Apply soft-thresholding operator
-    if (flag_softthreshod)
-        if (strcmp(options.type_obj,'dephasing') || strcmp(options.type_obj,'absorbing'))
-            xopt = softThresholdingOperator(xopt,options.mu,flag_const);
+    ik = 0 ;
+    flag_backtrack_continue = flag_backtrack ;
+    while (ik<=0 || flag_backtrack_continue==true)
+        %% Gradient descent step
+        % [fxopt,Gxopt,c] = crit(uopt);
+        % if (flag_reg)
+        %     [fxreg,Gxreg] = reg(uopt) ;
+        %     fxopt = fxopt + fxreg ;
+        %     Gxopt = Gxopt + Gxreg ;
+        % end
+        uopt_new = uopt - (1.0/Lip)*Guprev;
+
+        %% Apply bound constraints
+        xopt = uopt_new;
+        if (strcmp(options.type_obj,'dephasing') && options.flag_linearize)
+            idoutconst = find(xopt<options.iconst(1) | xopt>options.iconst(2));
+            xopt(idoutconst) = 0.0;
+        elseif (strcmp(options.type_obj,'absorbing') && options.flag_linearize)
+            idoutconst = find(xopt<options.rconst(1) | xopt>options.rconst(2));
+            xopt(idoutconst) = 0.0;
         else
-            xopt = softThresholdingOperator(xopt,options.mu,flag_const,true);
+            xoptreal = xopt(:,:,1);
+            idoutconst = find(xoptreal<options.rconst(1) | xoptreal>options.rconst(2));
+            xoptreal(idoutconst) = 0.0;
+
+            xoptimag = xopt(:,:,2);
+            idoutconst = find(xoptimag<options.iconst(1) | xoptimag>options.iconst(2));
+            xoptimag(idoutconst) = 0.0;
+
+            xopt(:,:,1) = xoptreal;
+            xopt(:,:,2) = xoptimag;
+
+            clear xoptreal xoptimag;
         end
-    end
-    
-    %% Apply support constraint
-    if (flag_support)
-        xopt(:,:,1) = support.*xopt(:,:,1);
-        xopt(:,:,2) = support.*xopt(:,:,2);
+
+        %% Apply support constraint
+        if (flag_support)
+            xopt(:,:,1) = support.*xopt(:,:,1);
+            xopt(:,:,2) = support.*xopt(:,:,2);
+        end
+
+        %% Apply soft-thresholding operator
+        cost_uopt = 0.0 ;
+        if (flag_softthreshod)
+            if (strcmp(options.type_obj,'dephasing') || strcmp(options.type_obj,'absorbing'))
+                [xopt,cost_uopt] = softThresholdingOperator(xopt,options.mu,flag_const);
+            else
+                [xopt,cost_uopt] = softThresholdingOperator(xopt,options.mu,flag_const,true);
+            end
+        end
+        
+        %% Re-calculate the criterion
+        [fuopt,Guopt,c] = crit(xopt);
+        if (flag_reg)
+            [fureg,Gureg] = reg(xopt) ;
+            fuopt = fuopt + fureg ;
+            Guopt = Guopt + Gureg ;
+        end
+
+        %%
+        d_xopt_uopt = xopt-uopt ;
+        quopt = fuprev + sum(d_xopt_uopt.*Guprev,'all') + (Lip/2.0)*sum(abs(d_xopt_uopt(:)).^2) + cost_uopt ;
+        %% Display backtracking information (for debugging)
+        % if options.verbose
+        %     fprintf('Eval. backtracking:\t%03d\t| ', ik);
+        %     fprintf('fuopt:\t%5.2e\t| ', fuopt);
+        %     fprintf('quopt:\t%5.2e\t| ', quopt);
+        %     fprintf('L:\t%5.2e\t| ', Lip);
+        %     fprintf('eta:\t%5.2e\t| ', eta^ik);
+        %     fprintf('\n');
+        % end
+        %% Evaluate the stopping criterion of the backtracking procedure
+        ik = ik+1 ;
+        if (fuopt <= quopt)
+            %% Stop backtracking flag
+            flag_backtrack_continue = false ;
+            uopt = uopt_new ; 
+        else
+            %% Update the Lipshitz constant estimate
+            Lip = (eta^ik)*Lip ;
+        end
     end
     
     %% Interpolation step
     sinterp = 0.5*(1+sqrt(1+4*(sinterp_prev^2)));
     uopt = xopt + ((sinterp_prev-1.0)/sinterp)*(xopt - xprev);
-   
+
+    %% Re-calculate the criterion
+    [fuopt,Guopt,c] = crit(uopt);
+    if (flag_reg)
+        [fureg,Gureg] = reg(uopt) ;
+        fuopt = fuopt + fureg ;
+        Guopt = Guopt + Gureg ;
+    end
     %% Compute analysis metrics
     
     % Compute Cost (data-fidelity)
-    if (options.flag_cost)      
+    if (options.flag_cost)
         [fxopt,Gxopt,c] = crit(xopt);
-        evolcost(i+1) = fxopt + options.mu*sum(abs(xopt(:))) ;
+        if (flag_reg)
+            [fxreg,Gxreg] = reg(xopt) ;
+            fxopt = fxopt + fxreg ;
+        end
+        evolcost(i+1) = fxopt + cost_uopt ;
     end
     
     % Compute SNR if required
@@ -361,12 +425,16 @@ for i=1:options.maxiter
     end
     
     %% Save previous iterate
+    fuprev = fuopt ;
+    Guprev = Guopt ;
     xprev = xopt;
     sinterp_prev = sinterp;
      
     %% Display convergence information
     if options.verbose
-        fprintf('Iter:\t%03d\t| ', i);
+        fprintf('Iter:\t%03d\t| Eval. backtracking:\t%03d\t| ', i, ik);
+        fprintf('L:\t%5.2e\t| ', Lip);
+        fprintf('Step (1/L):\t%5.2e\t| ', 1.0/Lip);
         if (options.flag_cost)
             fprintf('Cost:\t%5.2e\t| ', evolcost(i+1));
         end
@@ -381,6 +449,7 @@ for i=1:options.maxiter
     
 end
 
+%% Returned values
 if (options.flag_cost)
     varargout{1} = evolcost;
     if (flag_snr)
