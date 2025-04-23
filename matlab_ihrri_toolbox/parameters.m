@@ -195,7 +195,7 @@ EXPE.pixel_size = 2.2e-6/EXPE.mag ;	% (m) % pixel size
 EXPE.fov_extension_factor = 2.0 ; % field-of-view extension factor
                             % (cannot be <1 ; if =1 => no fov extension)
 % RECONSTRUCTION PARAMETERS
-EXPE.real_constraint = [-2,0];   % a 2-element vector giving hard constraint
+EXPE.real_constraint = [-Inf,Inf];   % a 2-element vector giving hard constraint
 %                          parameter for the real part of X
 %                           \_ TYPE_OBJ = 'dephasing'
 %                               \_ default: [0,0] (X is purely imaginary)
