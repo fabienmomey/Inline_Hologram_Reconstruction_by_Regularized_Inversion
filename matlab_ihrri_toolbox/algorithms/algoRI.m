@@ -161,24 +161,22 @@ end
 %% Extract hard constraints bounds
 if (~isfield(options, 'rconst'))
     warning('RCONST not set: set to [-Inf,Inf] (no constraint).');
-    options.rconst = [-2.0,0.0];
+    options.rconst = [-Inf,Inf];
 else
     if (any(size(options.rconst)~=[1,2]) && any(size(options.rconst)~=[2,1]))
         error('RCONST must be a 2-scalar vector.');
     end
     options.rconst=sort(options.rconst);
-    % options.rconst = [max(options.rconst(1),-2.0),min(options.rconst(2),0.0)];
 end
 
 if (~isfield(options, 'iconst'))
     warning('ICONST not set: set to [-Inf,Inf] (no constraint).');
-    options.iconst = [-1.0,1.0];
+    options.iconst = [-Inf,Inf];
 else
     if (any(size(options.iconst)~=[1,2]) && any(size(options.iconst)~=[2,1]))
         error('ICONST must be a 2-scalar vector.');
     end
     options.iconst=sort(options.iconst);
-    % options.iconst = [max(options.iconst(1),-1.0),min(options.iconst(2),1.0)];
 end
 
 %% Extract TYPE_OBJ and adapt hard constraints bounds 
@@ -312,12 +310,6 @@ for i=1:options.maxiter
     flag_backtrack_continue = flag_backtrack ;
     while (ik<=0 || flag_backtrack_continue==true)
         %% Gradient descent step
-        % [fxopt,Gxopt,c] = crit(uopt);
-        % if (flag_reg)
-        %     [fxreg,Gxreg] = reg(uopt) ;
-        %     fxopt = fxopt + fxreg ;
-        %     Gxopt = Gxopt + Gxreg ;
-        % end
         uopt_new = uopt - (1.0/Lip)*Guprev;
 
         %% Apply bound constraints
@@ -360,11 +352,11 @@ for i=1:options.maxiter
         end
         
         %% Re-calculate the criterion
-        [fuopt,Guopt,c] = crit(xopt);
+        [fxopt,Gxopt,c] = crit(xopt);
         if (flag_reg)
-            [fureg,Gureg] = reg(xopt) ;
-            fuopt = fuopt + fureg ;
-            Guopt = Guopt + Gureg ;
+            [fxreg,Gxreg] = reg(xopt) ;
+            fxopt = fxopt + fxreg ;
+            Gxopt = Gxopt + Gxreg ;
         end
 
         %%
@@ -381,7 +373,7 @@ for i=1:options.maxiter
         % end
         %% Evaluate the stopping criterion of the backtracking procedure
         ik = ik+1 ;
-        if (fuopt <= quopt || (~flag_backtrack_continue && ik>0))
+        if (fxopt <= quopt || (~flag_backtrack_continue && ik>0))
             %% Stop backtracking flag
             flag_backtrack_continue = false ;
             uopt = uopt_new ; 
@@ -395,6 +387,20 @@ for i=1:options.maxiter
     sinterp = 0.5*(1+sqrt(1+4*(sinterp_prev^2)));
     uopt = xopt + ((sinterp_prev-1.0)/sinterp)*(xopt - xprev);
 
+    %% Compute analysis metrics 
+    % Compute Cost (data-fidelity)
+    if (options.flag_cost)
+        evolcost(i+1) = fxopt + cost_uopt ;
+    end
+    % Compute SNR if required
+    if (flag_snr)
+        evolsnr(i+1) = 20*log10(normxtrue/norm(xtrue(:)-xopt(:)));
+    end 
+    % Compute Evol X if required
+    if (options.flag_evolx)
+        evolx(i+1) = norm(xopt(:)-xprev(:));
+    end
+
     %% Re-calculate the criterion
     [fuopt,Guopt,c] = crit(uopt);
     if (flag_reg)
@@ -403,34 +409,12 @@ for i=1:options.maxiter
         Guopt = Guopt + Gureg ;
     end
     
-    %% Compute analysis metrics
-    
-    % Compute Cost (data-fidelity)
-    if (options.flag_cost)
-        [fxopt,Gxopt,c] = crit(xopt);
-        if (flag_reg)
-            [fxreg,Gxreg] = reg(xopt) ;
-            fxopt = fxopt + fxreg ;
-        end
-        evolcost(i+1) = fxopt + cost_uopt ;
-    end
-    
-    % Compute SNR if required
-    if (flag_snr)
-        evolsnr(i+1) = 20*log10(normxtrue/norm(xtrue(:)-xopt(:)));
-    end
-    
-    % Compute Evol X if required
-    if (options.flag_evolx)
-        evolx(i+1) = norm(xopt(:)-xprev(:));
-    end
-    
     %% Save previous iterate
     fuprev = fuopt ;
     Guprev = Guopt ;
     xprev = xopt;
     sinterp_prev = sinterp;
-     
+   
     %% Display convergence information
     if options.verbose
         fprintf('Iter:\t%03d\t| Eval. backtracking:\t%03d\t| ', i, ik);
