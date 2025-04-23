@@ -137,7 +137,7 @@ uoptnorm = uopt;
 uoptnorm(idnz) = uopt(idnz)./abs(uopt(idnz));
 gxcplx = 2*c*H_z((uoptnorm.*(cuopt_y)));
 
-gx = zeros(npix_W,npix_H,2);
+gx = switch_to_gpu_array(zeros(npix_W,npix_H,2));
 gx(:,:,1) = real(gxcplx);
 gx(:,:,2) = imag(gxcplx);
 

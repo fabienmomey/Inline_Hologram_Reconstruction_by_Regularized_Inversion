@@ -169,13 +169,14 @@ run('parameters');
 %%%%%%%%%%%%%%%%%%
 data = double(imread([EXPE.holodir_data,EXPE.holodatafile]));
 data = data/median(data(:));
+data = switch_to_gpu_array(data) ;
 
 % Get hologram dimensions
 EXPE.fov_width = size(data,2) ;           % field-of-view width in pixels
 EXPE.fov_height = size(data,1) ;          % field-of-view height in pixels
 
 if (EXPE.flag_display)
-    ihrri_show(data, 'Data');
+    ihrri_show(gather(data), 'Data');
 end
 
 % FILL EXPERIMENT REPORT STRUCT
@@ -316,9 +317,9 @@ clear Gz Hz;
 % INITIALIZATION PARAMETERS  
 if ((strcmp(EXPE.type_obj,'dephasing') || strcmp(EXPE.type_obj,'absorbing'))...
     && EXPE.flag_linearize)
-    EXPE.o0 = zeros([EXPE.fov_height, EXPE.fov_width]);
+    EXPE.o0 = switch_to_gpu_array(zeros([EXPE.fov_height, EXPE.fov_width]));
 else
-    EXPE.o0 = zeros([EXPE.fov_height, EXPE.fov_width, 2]);
+    EXPE.o0 = switch_to_gpu_array(zeros([EXPE.fov_height, EXPE.fov_width, 2]));
 end
 
 % GRADIENT IMAGE FUNCTION HANDLES (FOR EDGE-PRESERVING SMOOTHING REGULARIZATION)
@@ -455,23 +456,26 @@ EXPE.Gxopt = RECGxopt;
 EXPE.c = RECc;
 
 % DISPLAY RECONSTRUCTION
+RECxopt = gather(RECxopt) ;
 if (EXPE.flag_display)
     %% Reconstruction
     if (~strcmp(EXPE.type_obj,'Fienup') && ((strcmp(EXPE.type_obj,'dephasing') || strcmp(EXPE.type_obj,'absorbing'))...
                 && EXPE.flag_linearize))
         if (strcmp(EXPE.type_obj,'dephasing'))
-            ihrri_show(RECxopt,'Reconstructed phase');
+            ihrri_show(real(RECxopt),'Reconstructed phase');
         elseif (strcmp(EXPE.type_obj,'absorbing'))
-            ihrri_show(-RECxopt,'Reconstructed opacity');
+            ihrri_show(real(-RECxopt),'Reconstructed opacity');
         end
     else
-        RECxopt = 1.0 + RECxopt(:,:,1) + 1i * RECxopt(:,:,2);
-        ihrri_show(angle(RECxopt),'Reconstructed phase');
-        ihrri_show(abs(RECxopt),'Reconstructed modulus');
+        RECxopt = gather(RECxopt) ;
+        RECxopt = 1.0 + real(RECxopt(:,:,1)) + 1i * RECxopt(:,:,2);
+        ihrri_show(angle(gather(RECxopt)),'Reconstructed phase');
+        ihrri_show(abs(gather(RECxopt)),'Reconstructed modulus');
     end
     %% Residues
     [fxopt,gxopt,c,residues] = Crit(EXPE.xopt);
-    ihrri_show(residues,'Residues');
+    residues = gather(residues) ;
+    ihrri_show(real(residues),'Residues');
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

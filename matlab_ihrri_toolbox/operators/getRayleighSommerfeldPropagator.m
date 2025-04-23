@@ -160,7 +160,7 @@ else
     ewald = logical(ones(size(lambda2_f2))) ;
 end
 
-Hz = exp(1i*k_n0*z*(1-lambda2_f2).^0.5) ;
+Hz = exp(1i*k_n0*z*(1-complex(lambda2_f2)).^0.5) ;
 % Phase normalization
 if (~flag_phaseref)
     Hz=Hz.*exp(-1i*k_n0*z);

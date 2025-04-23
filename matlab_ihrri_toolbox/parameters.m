@@ -147,6 +147,10 @@ EXPE.holodir_results_timestamp = [EXPE.holodir_results_expe,newdate_expe,'/'];
 %% FLAGS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%% I have a Matlab-compatible GPU device and I want to use it
+global flag_gpu_required ;
+flag_gpu_required = true ;
+
 %% I choose the reconstruction method: 'Fienup' or 'RI'
 EXPE.flag_rec_meth = 'RI';
 EXPE.flag_backtrack = true ; % Backtracking (only useful if flag_rec_meth = 'RI')
@@ -155,7 +159,7 @@ EXPE.flag_fienup = false;
 
 %% My object of interest is purely 'dephasing' or 'absorbing', or 'unknown'.
 %% It allows to define the propagation kernel and default bound constraints.
-EXPE.type_obj = 'dephasing';
+EXPE.type_obj = 'unknown';
 
 %% I choose which propagation kernel I will use: Fresnel 'Fr' or Rayleigh-Sommerfeld 'RS'
 EXPE.type_prop = 'RS' ;
@@ -163,7 +167,7 @@ EXPE.type_prop = 'RS' ;
 %% I want a linearization of the intensity formation model: true or false
 %% (only useful if type_obj ~= 'unknown')
 %% If Fienup ER is performed, this flag must be set to false
-EXPE.flag_linearize = true;
+EXPE.flag_linearize = false;
 
 %% My reconstruction requires:
 % - zero-padding for performing convolutions
@@ -195,7 +199,7 @@ EXPE.pixel_size = 2.2e-6/EXPE.mag ;	% (m) % pixel size
 EXPE.fov_extension_factor = 2.0 ; % field-of-view extension factor
                             % (cannot be <1 ; if =1 => no fov extension)
 % RECONSTRUCTION PARAMETERS
-EXPE.real_constraint = [-2,0];   % a 2-element vector giving hard constraint
+EXPE.real_constraint = [-Inf,Inf];   % a 2-element vector giving hard constraint
 %                          parameter for the real part of X
 %                           \_ TYPE_OBJ = 'dephasing'
 %                               \_ default: [0,0] (X is purely imaginary)

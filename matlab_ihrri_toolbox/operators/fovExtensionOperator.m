@@ -78,7 +78,7 @@ elseif (fov_extension_factor>1)
         npix_W_ext = floor(npix_W_ext_float);
         
         % Extended image (zero-padded)
-        x_ext = ext_val*ones(npix_H_ext,npix_W_ext);
+        x_ext = ext_val*switch_to_gpu_array(ones(npix_H_ext,npix_W_ext));
         
         % Get starting pixel for filling the "useful" field of view
         start_H = floor((npix_H_ext-npix_H)/2.0);

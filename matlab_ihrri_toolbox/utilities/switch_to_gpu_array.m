@@ -1,6 +1,5 @@
-
-function [x_output] = switch_between_cpu_gpu_array(x_input)
-% [x_output] = switch_between_cpu_gpu_array(x_input)
+function [x_output] = switch_to_gpu_array(x_input)
+% [x_output] = switch_to_gpu_array(x_input)
 %
 % Function to switch an array from the "CPU space" to the "GPU space", and
 % vice-versa.
@@ -43,11 +42,13 @@ function [x_output] = switch_between_cpu_gpu_array(x_input)
 % OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 % OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if (~isempty(gpuDevice))
-    if (isgpuarray(x_input))
-        x_output = gather(x_input) ;
-    else
-        x_output = gpuArray(x_input) ;
-    end
+
+global flag_gpu_required ;
+if (isempty(flag_gpu_required) || isempty(gpuDevice))
+    flag_gpu_required = false ;
+end
+
+if (flag_gpu_required && ~isgpuarray(x_input))
+    x_output = gpuArray(x_input) ;
 end
 end

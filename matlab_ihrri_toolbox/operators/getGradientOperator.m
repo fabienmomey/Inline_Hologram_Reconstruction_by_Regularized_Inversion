@@ -54,7 +54,7 @@ function [G] = getGradientOperator(npix_W, npix_H)
     
 ker_x_start = ceil(0.5*(npix_W-1)) ;
 ker_y_start = ceil(0.5*(npix_H-1)) ;
-g = zeros(npix_H, npix_W) ;
+g = switch_to_gpu_array(zeros(npix_H, npix_W)) ;
 
 % Gradient in x direction (direction == 0)
 % g(ker_y_start:ker_y_start+2,ker_x_start:ker_x_start+2) = (1.0/3.0)*(ones(3,1)*[-1,0,1]) ;

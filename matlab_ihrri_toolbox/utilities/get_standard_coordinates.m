@@ -43,6 +43,6 @@ function [x] = get_standard_coordinates(npix, pixel_size)
 % OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-x=((0:npix-1)-0.5*(npix-1))*pixel_size;
+x=switch_to_gpu_array(((0:npix-1)-0.5*(npix-1))*pixel_size);
 
 end

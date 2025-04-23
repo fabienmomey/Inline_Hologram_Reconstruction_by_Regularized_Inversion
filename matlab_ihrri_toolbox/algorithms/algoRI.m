@@ -402,6 +402,7 @@ for i=1:options.maxiter
         fuopt = fuopt + fureg ;
         Guopt = Guopt + Gureg ;
     end
+    
     %% Compute analysis metrics
     
     % Compute Cost (data-fidelity)
